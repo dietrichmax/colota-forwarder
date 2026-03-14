@@ -1,0 +1,40 @@
+export type TargetType = "owntracks" | "colota" | "raw"
+
+const VALID_TYPES: TargetType[] = ["owntracks", "colota", "raw"]
+
+export interface Target {
+  url: string
+  auth?: string  // value for Authorization header, e.g. "Bearer xxx"
+  type: TargetType
+  tid?: string   // tracker ID for owntracks type (default: "CL")
+  user?: string  // X-Limit-U header for owntracks type (default: "colota")
+  device?: string // X-Limit-D header for owntracks type (default: "phone")
+}
+
+export function loadTargets(): Target[] {
+  const targets: Target[] = []
+  for (let i = 1; i <= 20; i++) {
+    const url = process.env[`TARGET_${i}_URL`]
+    if (!url) break
+    try {
+      const parsed = new URL(url)
+      if (parsed.protocol !== "http:" && parsed.protocol !== "https:") {
+        console.warn(`TARGET_${i}_URL has unsupported protocol "${parsed.protocol}" — skipping`)
+        continue
+      }
+    } catch {
+      console.warn(`TARGET_${i}_URL is not a valid URL — skipping`)
+      continue
+    }
+    const rawType = process.env[`TARGET_${i}_TYPE`] ?? "raw"
+    const validType = VALID_TYPES.includes(rawType as TargetType)
+    if (!validType) console.warn(`TARGET_${i}_TYPE "${rawType}" is invalid, falling back to "raw"`)
+    const type: TargetType = validType ? (rawType as TargetType) : "raw"
+    const auth = process.env[`TARGET_${i}_AUTH`]
+    const tid = process.env[`TARGET_${i}_TID`]
+    const user = process.env[`TARGET_${i}_USER`]
+    const device = process.env[`TARGET_${i}_DEVICE`]
+    targets.push({ url, type, ...(auth ? { auth } : {}), ...(tid ? { tid } : {}), ...(user ? { user } : {}), ...(device ? { device } : {}) })
+  }
+  return targets
+}

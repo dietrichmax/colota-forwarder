@@ -1,0 +1,13 @@
+services:
+  colota-forwarder:
+    image: colota-forwarder
+    build: .
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:3000:3000"
+    env_file: .env
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    mem_limit: 128m
+    cpus: "0.5"
