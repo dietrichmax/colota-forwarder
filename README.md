@@ -14,6 +14,8 @@ Colota posts a location update to the forwarder. The forwarder responds immediat
 
 ## Quick start
 
+> **Note:** colota-forwarder is designed to run behind a reverse proxy (Traefik, Caddy, nginx, etc.) that handles TLS. The app binds to `127.0.0.1` by default and has no HTTPS on its own.
+
 **1. Deploy**
 
 ```sh

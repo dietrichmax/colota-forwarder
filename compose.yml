@@ -1,6 +1,6 @@
 services:
   colota-forwarder:
-    image: colota-forwarder
+    image: mxdcodes/colota-forwarder
     build: .
     restart: unless-stopped
     ports:
