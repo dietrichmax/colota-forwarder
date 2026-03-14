@@ -16,13 +16,7 @@ Colota posts a location update to the forwarder. The forwarder responds immediat
 
 > **Note:** colota-forwarder is designed to run behind a reverse proxy (Traefik, Caddy, nginx, etc.) that handles TLS. The app binds to `127.0.0.1` by default and has no HTTPS on its own.
 
-**1. Deploy**
-
-```sh
-docker compose up -d
-```
-
-**2. Configure targets in `.env`**
+**1. Configure targets in `.env`**
 
 Copy `.env.example` to `.env` and add your targets. For Home Assistant and Dawarich, set `TARGET_n_TYPE=owntracks` — the forwarder will convert the payload automatically.
 
@@ -41,9 +35,10 @@ TARGET_2_TYPE=owntracks
 TARGET_2_AUTH=Bearer your-api-key
 ```
 
-Restart after changing `.env`:
+**2. Deploy**
+
 ```sh
-docker compose up -d --force-recreate
+docker compose up -d
 ```
 
 **3. Point Colota at the forwarder**
