@@ -8,17 +8,28 @@ export async function forwardToAll(targets: Target[], payload: ColotaPayload): P
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), 10_000)
       try {
-        const headers: Record<string, string> = { "Content-Type": "application/json" }
+        const isGet = target.type === "traccar"
+        const transformed = transformPayload(payload, target)
+        const headers: Record<string, string> = {}
+        if (!isGet) headers["Content-Type"] = "application/json"
         if (target.auth) headers["Authorization"] = target.auth
         if (target.type === "owntracks") {
           headers["X-Limit-U"] = target.user ?? "colota"
           headers["X-Limit-D"] = target.device ?? "phone"
         }
 
-        const res = await fetch(target.url, {
-          method: "POST",
+        let url = target.url
+        if (isGet) {
+          const params = new URLSearchParams(
+            Object.entries(transformed).map(([k, v]) => [k, String(v)])
+          )
+          url = `${target.url}?${params}`
+        }
+
+        const res = await fetch(url, {
+          method: isGet ? "GET" : "POST",
           headers,
-          body: JSON.stringify(transformPayload(payload, target)),
+          ...(isGet ? {} : { body: JSON.stringify(transformed) }),
           signal: controller.signal,
         })
 

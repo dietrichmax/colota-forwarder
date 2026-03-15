@@ -1,6 +1,6 @@
-export type TargetType = "owntracks" | "colota" | "raw"
+export type TargetType = "owntracks" | "geopulse" | "traccar" | "colota" | "raw"
 
-const VALID_TYPES: TargetType[] = ["owntracks", "colota", "raw"]
+const VALID_TYPES: TargetType[] = ["owntracks", "geopulse", "traccar", "colota", "raw"]
 
 export interface Target {
   url: string

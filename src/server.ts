@@ -68,6 +68,11 @@ app.use(rateLimit({
   legacyHeaders: false,
 }))
 
+// HEAD /locations - used by mobile app health checks
+app.head("/locations", (_req: Request, res: Response) => {
+  res.sendStatus(200)
+})
+
 // Forward endpoint — accepts any JSON payload and fans out to all targets
 app.post("/locations", authenticate, async (req: Request, res: Response): Promise<void> => {
   if (!req.is("application/json")) {

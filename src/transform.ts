@@ -29,8 +29,19 @@ export function transformPayload(payload: ColotaPayload, target: Target): Record
         // OwnTracks uses "cog" for bearing
         ...(payload.bear !== undefined && { cog: payload.bear }),
       }
-    case "colota":
-    case "raw":
+    case "traccar":
+      return {
+        id: target.tid ?? "colota",
+        lat: payload.lat,
+        lon: payload.lon,
+        accuracy: payload.acc,
+        timestamp: payload.tst,
+        batt: payload.batt,
+        charge: payload.bs,
+        ...(payload.alt !== undefined && { altitude: payload.alt }),
+        ...(payload.vel !== undefined && { speed: payload.vel }),
+        ...(payload.bear !== undefined && { bearing: payload.bear }),
+      }
     default:
       return { ...payload }
   }
