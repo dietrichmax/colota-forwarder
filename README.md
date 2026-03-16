@@ -1,6 +1,7 @@
 # colota-forwarder
 
-Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once — Home Assistant, Dawarich, GeoPulse, Traccar, or any HTTP endpoint.
+Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once — Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint.
+
 
 ```
 Colota app  →  colota-forwarder  →  Home Assistant
@@ -82,7 +83,6 @@ TARGET_2_TYPE=owntracks
 ```
 TARGET_3_URL=https://geopulse.example.com/api/colota
 TARGET_3_TYPE=geopulse
-# TARGET_3_AUTH=Basic base64encodedcredentials
 ```
 
 ### Traccar
@@ -91,6 +91,13 @@ TARGET_3_TYPE=geopulse
 TARGET_4_URL=https://traccar.example.com:5055
 TARGET_4_TYPE=traccar
 # TARGET_4_TID=colota  # device ID in Traccar, default: colota
+```
+
+### Reitti
+
+```
+TARGET_5_URL=https://reitti.example.com/api/v1/ingest/owntracks?token=your-reitti-token
+TARGET_5_TYPE=owntracks
 ```
 
 ### OwnTracks Recorder
@@ -106,8 +113,8 @@ TARGET_5_TYPE=owntracks
 
 | Type | Use for | Notes |
 |------|---------|-------|
-| `owntracks` | Home Assistant, Dawarich | Converts to OwnTracks format, adds `X-Limit-U`/`X-Limit-D` headers |
-| `geopulse` | GeoPulse | Passes payload unchanged |
+| `owntracks` | Home Assistant, Dawarich, Reitti, OwnTracks Recorder | Converts to OwnTracks format, adds `X-Limit-U`/`X-Limit-D` headers |
+| `geopulse` | GeoPulse | Passes Colota payload unchanged |
 | `traccar` | Traccar | HTTP GET with OsmAnd protocol field names |
 | `colota` / `raw` | Custom endpoints | Passes payload unchanged |
 
