@@ -4,16 +4,7 @@
 
 # colota-forwarder
 
-Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once — Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint.
-
-
-```
-Colota app  →  colota-forwarder  →  Home Assistant
-                                 →  Dawarich
-                                 →  anything else
-```
-
-The forwarder responds to Colota immediately and fans the update out to all targets in the background, converting the format for each service as needed.
+Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once - Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint. The forwarder responds to Colota immediately and fans the update out to all targets in the background, converting the format for each service as needed.
 
 ## Setup
 
@@ -38,7 +29,7 @@ services:
 
 Copy `.env.example` to `.env` and fill in your targets:
 
-```
+```env
 API_KEY=your-secret-key
 
 TARGET_1_URL=http://homeassistant:8123/api/webhook/your-webhook-id
@@ -48,7 +39,7 @@ TARGET_2_URL=https://dawarich.example.com/api/v1/owntracks/points?api_key=your-k
 TARGET_2_TYPE=owntracks
 ```
 
-Targets are read in order starting at 1. If a number is skipped, everything after it is ignored.
+Targets are numbered consecutively starting at 1. If a number is skipped, everything after it is ignored.
 
 **3. Start**
 
@@ -66,32 +57,32 @@ In the app, set the endpoint to `https://your-server/locations`. If you set an `
 
 Go to **Settings → Devices & Services → Add integration → OwnTracks**, copy the webhook URL, then:
 
-```
+```env
 TARGET_1_URL=http://homeassistant:8123/api/webhook/your-webhook-id
 TARGET_1_TYPE=owntracks
-# TARGET_1_USER=colota   # default: colota — used in the entity name
-# TARGET_1_DEVICE=phone  # default: phone  — used in the entity name
+# TARGET_1_USER=colota   # default: colota - used in the entity name
+# TARGET_1_DEVICE=phone  # default: phone  - used in the entity name
 ```
 
 The device tracker shows up as `device_tracker.colota_phone` after the first update.
 
 ### Dawarich
 
-```
+```env
 TARGET_2_URL=https://dawarich.example.com/api/v1/owntracks/points?api_key=your-key
 TARGET_2_TYPE=owntracks
 ```
 
 ### GeoPulse
 
-```
+```env
 TARGET_3_URL=https://geopulse.example.com/api/colota
 TARGET_3_TYPE=geopulse
 ```
 
 ### Traccar
 
-```
+```env
 TARGET_4_URL=https://traccar.example.com:5055
 TARGET_4_TYPE=traccar
 # TARGET_4_TID=colota  # device ID in Traccar, default: colota
@@ -99,7 +90,7 @@ TARGET_4_TYPE=traccar
 
 ### Reitti
 
-```
+```env
 TARGET_5_URL=https://reitti.example.com/api/v1/ingest/owntracks?token=your-reitti-token
 TARGET_5_TYPE=owntracks
 ```
@@ -108,9 +99,9 @@ TARGET_5_TYPE=owntracks
 
 OwnTracks Recorder uses the same format and headers as the HA integration, so `TYPE=owntracks` works:
 
-```
-TARGET_5_URL=http://recorder:8083/pub
-TARGET_5_TYPE=owntracks
+```env
+TARGET_6_URL=http://recorder:8083/pub
+TARGET_6_TYPE=owntracks
 ```
 
 ## Target types
@@ -127,14 +118,14 @@ TARGET_5_TYPE=owntracks
 | Variable | Default | Description |
 |----------|---------|-------------|
 | `PORT` | `3000` | Port to listen on |
-| `API_KEY` | — | If set, requests must include it via `x-api-key` header or `?api_key=` |
-| `TARGET_n_URL` | — | Forward destination (n = 1–20, must be consecutive) |
+| `API_KEY` | - | If set, requests must include it via `x-api-key` header or `?api_key=` query param |
+| `TARGET_n_URL` | - | Forward destination (n = 1-20, must be consecutive) |
 | `TARGET_n_TYPE` | `raw` | `owntracks`, `geopulse`, `traccar`, `colota`, or `raw` |
-| `TARGET_n_AUTH` | — | Full `Authorization` header value (e.g. `Bearer your-token`) |
+| `TARGET_n_AUTH` | - | Full `Authorization` header value (e.g. `Bearer your-token`) |
 | `TARGET_n_TID` | `CL` | Tracker ID for `owntracks` / device ID for `traccar` |
 | `TARGET_n_USER` | `colota` | `X-Limit-U` header for `owntracks` targets |
 | `TARGET_n_DEVICE` | `phone` | `X-Limit-D` header for `owntracks` targets |
 
 ## Security
 
-Set a strong `API_KEY` before exposing the forwarder publicly. Run it behind a reverse proxy (Traefik, Caddy, etc.) that handles TLS. The app has no HTTPS on its own. The `compose.yml` binds to `127.0.0.1` so the port isn't reachable from outside without a proxy.
+Set a strong `API_KEY` before exposing the forwarder publicly. Run it behind a reverse proxy (Traefik, Caddy, etc.) that handles TLS - the forwarder does not terminate TLS itself. The `compose.yml` binds to `127.0.0.1` so the port is not reachable from outside without a proxy.
