@@ -1,3 +1,7 @@
+<p align="center">
+  <img src="banner.svg" width="100%" alt="colota-forwarder" />
+</p>
+
 # colota-forwarder
 
 Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once — Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint.
