@@ -1,6 +1,5 @@
 import express, { Request, Response, NextFunction, Application } from "express"
 import crypto from "crypto"
-import { rateLimit } from "express-rate-limit"
 import { loadTargets } from "./targets"
 import { forwardToAll } from "./forwarder"
 import type { ColotaPayload } from "./transform"
@@ -60,13 +59,6 @@ function authenticate(req: Request, res: Response, next: NextFunction): void {
 
   next()
 }
-
-app.use(rateLimit({
-  windowMs: Number(process.env.RATE_LIMIT_WINDOW_MS) || 60_000,
-  limit: Number(process.env.RATE_LIMIT_MAX) || 140,
-  standardHeaders: true,
-  legacyHeaders: false,
-}))
 
 // HEAD /locations - used by mobile app health checks
 app.head("/locations", (_req: Request, res: Response) => {
