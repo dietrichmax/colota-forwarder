@@ -6,6 +6,8 @@
 
 Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once - Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint. The forwarder responds to Colota immediately and fans the update out to all targets in the background, converting the format for each service as needed.
 
+> **Warning:** Never expose colota-forwarder to the internet without setting a strong `API_KEY`. Without it, anyone who can reach the forwarder can send arbitrary location data to all your targets. Always run behind a reverse proxy with TLS.
+
 ## Setup
 
 **1. Create a `compose.yml`**
@@ -128,4 +130,6 @@ TARGET_6_TYPE=owntracks
 
 ## Security
 
-Set a strong `API_KEY` before exposing the forwarder publicly. Run it behind a reverse proxy (Traefik, Caddy, etc.) that handles TLS - the forwarder does not terminate TLS itself. The `compose.yml` binds to `127.0.0.1` so the port is not reachable from outside without a proxy.
+- Set a strong, random `API_KEY` in your `.env` before going public
+- Run behind a reverse proxy (Traefik, Caddy, etc.) that handles TLS — the forwarder does not terminate TLS itself
+- The `compose.yml` binds to `127.0.0.1` so the port is not reachable from outside without a proxy
