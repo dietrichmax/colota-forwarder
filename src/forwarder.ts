@@ -2,11 +2,13 @@ import type { Target } from "./targets"
 import { transformPayload, type ColotaPayload } from "./transform"
 import { maskUrl } from "./utils"
 
+const FORWARD_TIMEOUT = Number(process.env.FORWARD_TIMEOUT_MS) || 30_000
+
 export async function forwardToAll(targets: Target[], payload: ColotaPayload): Promise<void> {
   await Promise.allSettled(
     targets.map(async (target) => {
       const controller = new AbortController()
-      const timeout = setTimeout(() => controller.abort(), 10_000)
+      const timeout = setTimeout(() => controller.abort(), FORWARD_TIMEOUT)
       try {
         const isGet = target.type === "traccar"
         const transformed = transformPayload(payload, target)
