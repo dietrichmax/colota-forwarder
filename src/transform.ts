@@ -10,6 +10,7 @@ export interface ColotaPayload {
   alt?: number
   vel?: number  // m/s
   bear?: number
+  tid?: string  // device/tracker identifier from app custom fields
 }
 
 export function owntracksToColota(body: Record<string, unknown>): ColotaPayload {
@@ -31,7 +32,7 @@ export function transformPayload(payload: ColotaPayload, target: Target): Record
     case "owntracks":
       return {
         _type: "location",
-        tid: target.tid ?? "CL",
+        tid: payload.tid ?? target.tid ?? "CL",
         lat: payload.lat,
         lon: payload.lon,
         tst: payload.tst,
@@ -67,13 +68,13 @@ export function transformPayload(payload: ColotaPayload, target: Target): Record
         }
 
         return {
-          device_id: target.tid ?? "colota",
+          device_id: payload.tid ?? target.tid ?? "colota",
           location,
         }
       }
       // Traccar OsmAnd GET format (default)
       return {
-        id: target.tid ?? "colota",
+        id: payload.tid ?? target.tid ?? "colota",
         lat: payload.lat,
         lon: payload.lon,
         accuracy: payload.acc,
