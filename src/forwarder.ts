@@ -10,7 +10,8 @@ export async function forwardToAll(targets: Target[], payload: ColotaPayload): P
       const controller = new AbortController()
       const timeout = setTimeout(() => controller.abort(), FORWARD_TIMEOUT)
       try {
-        const isGet = target.type === "traccar"
+        const defaultGet = target.type === "traccar"
+        const isGet = target.method ? target.method === "GET" : defaultGet
         const transformed = transformPayload(payload, target)
         const headers: Record<string, string> = {}
         if (!isGet) headers["Content-Type"] = "application/json"

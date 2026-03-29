@@ -2,8 +2,9 @@ import express, { Request, Response, NextFunction, Application } from "express"
 import crypto from "crypto"
 import { loadTargets } from "./targets"
 import { forwardToAll } from "./forwarder"
-import type { ColotaPayload } from "./transform"
+import { owntracksToColota, type ColotaPayload } from "./transform"
 import { maskUrl } from "./utils"
+import "dotenv/config"
 
 const app: Application = express()
 const PORT = process.env.PORT || 3000
@@ -21,6 +22,8 @@ if (!REQUIRE_AUTH) {
 app.set("trust proxy", 1)
 app.disable("x-powered-by")
 
+app.use(express.json({ limit: "1mb", strict: true }))
+
 app.use((req: Request, _res: Response, next: NextFunction): void => {
   if (req.path === "/health") return next()
   if (req.method === "GET") return next()
@@ -29,8 +32,6 @@ app.use((req: Request, _res: Response, next: NextFunction): void => {
   console.log(`[${new Date().toISOString()}] ${req.method} ${url.pathname}${url.search} from IP=${req.ip}`)
   next()
 })
-
-app.use(express.json({ limit: "1mb", strict: true, type: "application/json" }))
 
 // Health check
 app.get("/health", (_req: Request, res: Response) => {
@@ -41,8 +42,10 @@ app.get("/health", (_req: Request, res: Response) => {
 function authenticate(req: Request, res: Response, next: NextFunction): void {
   if (!REQUIRE_AUTH) return next()
 
+  const bearer = req.header("authorization")?.startsWith("Bearer ") ? req.header("authorization")!.slice(7) : undefined
   const key =
     req.header("x-api-key") ??
+    bearer ??
     (typeof req.query.api_key === "string" ? req.query.api_key : undefined)
 
   if (!key || !API_KEY) {
@@ -60,12 +63,37 @@ function authenticate(req: Request, res: Response, next: NextFunction): void {
   next()
 }
 
+// OwnTracks HTTP receiver — accepts OwnTracks app payloads and forwards to all targets
+app.post("/owntracks", authenticate, async (req: Request, res: Response): Promise<void> => {
+  const body = req.body as Record<string, unknown>
+
+  if (body._type !== "location") {
+    res.status(200).json([])
+    return
+  }
+
+  const { lat, lon, tst, acc } = body
+  if (
+    typeof lat !== "number" || !isFinite(lat) ||
+    typeof lon !== "number" || !isFinite(lon) ||
+    typeof tst !== "number" || !isFinite(tst) ||
+    typeof acc !== "number" || !isFinite(acc)
+  ) {
+    res.status(400).json({ error: "Missing or invalid required fields: lat, lon, tst, acc" })
+    return
+  }
+
+  const payload = owntracksToColota(body)
+  res.status(200).json([])
+  forwardToAll(targets, payload)
+})
+
 // HEAD /locations - used by mobile app health checks
 app.head("/locations", (_req: Request, res: Response) => {
   res.sendStatus(200)
 })
 
-// Forward endpoint — accepts any JSON payload and fans out to all targets
+// Colota HTTP receiver — accepts any JSON payload and fans out to all targets
 app.post("/locations", authenticate, async (req: Request, res: Response): Promise<void> => {
   if (!req.is("application/json")) {
     res.status(400).json({ error: "Invalid content type" })
@@ -94,6 +122,7 @@ app.post("/locations", authenticate, async (req: Request, res: Response): Promis
   res.status(200).json({ message: "Accepted", forwarded: targets.length })
   forwardToAll(targets, body as unknown as ColotaPayload)
 })
+
 
 app.use((err: Error, req: Request, res: Response, _next: NextFunction) => {
   const errUrl = new URL(req.originalUrl, "http://localhost")

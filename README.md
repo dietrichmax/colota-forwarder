@@ -49,9 +49,12 @@ Targets are numbered consecutively starting at 1. If a number is skipped, everyt
 docker compose up -d
 ```
 
-**4. Point Colota at the forwarder**
+**4. Point your app at the forwarder**
 
-In the app, set the endpoint to `https://your-server/locations`. If you set an `API_KEY`, add `x-api-key: your-key` as a custom header in the app.
+- **Colota:** use the **Colota** (default/custom) API scheme and set the endpoint to `https://your-server/locations`
+- **OwnTracks:** set mode to HTTP and the URL to `https://your-server/owntracks?api_key=your-key`
+
+Authentication is accepted via `x-api-key` header, `?api_key=` query param, or `Authorization: Bearer` header.
 
 ## Integrations
 
@@ -84,9 +87,20 @@ TARGET_3_TYPE=geopulse
 
 ### Traccar
 
+GET (OsmAnd protocol, default):
+
 ```env
 TARGET_4_URL=https://traccar.example.com:5055
 TARGET_4_TYPE=traccar
+# TARGET_4_TID=colota  # device ID in Traccar, default: colota
+```
+
+POST (JSON, requires Traccar 5.1+):
+
+```env
+TARGET_4_URL=https://traccar.example.com:5055
+TARGET_4_TYPE=traccar
+TARGET_4_METHOD=POST
 # TARGET_4_TID=colota  # device ID in Traccar, default: colota
 ```
 
@@ -112,7 +126,7 @@ TARGET_6_TYPE=owntracks
 |------|---------|-------|
 | `owntracks` | Home Assistant, Dawarich, Reitti, OwnTracks Recorder | Converts to OwnTracks format, adds `X-Limit-U`/`X-Limit-D` headers |
 | `geopulse` | GeoPulse | Passes Colota payload unchanged |
-| `traccar` | Traccar | HTTP GET with OsmAnd protocol field names |
+| `traccar` | Traccar | GET (OsmAnd protocol) by default, set `METHOD=POST` for JSON |
 | `colota` / `raw` | Custom endpoints | Passes payload unchanged |
 
 ## Environment variables
@@ -123,6 +137,7 @@ TARGET_6_TYPE=owntracks
 | `API_KEY` | - | If set, requests must include it via `x-api-key` header or `?api_key=` query param |
 | `TARGET_n_URL` | - | Forward destination (n = 1-20, must be consecutive) |
 | `TARGET_n_TYPE` | `raw` | `owntracks`, `geopulse`, `traccar`, `colota`, or `raw` |
+| `TARGET_n_METHOD` | auto | `GET` or `POST` - overrides the default method for the target type |
 | `TARGET_n_AUTH` | - | Full `Authorization` header value (e.g. `Bearer your-token`) |
 | `TARGET_n_TID` | `CL` | Tracker ID for `owntracks` / device ID for `traccar` |
 | `TARGET_n_USER` | `colota` | `X-Limit-U` header for `owntracks` targets |
