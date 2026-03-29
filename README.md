@@ -4,6 +4,8 @@
 
 # colota-forwarder
 
+[![Shield: Docker Pulls](https://img.shields.io/docker/pulls/mxdcodes/colota-forwarder?label=Docker%20Pull)](https://hub.docker.com/r/mxdcodes/colota-forwarder) ![Shield: Docker Image Size](https://img.shields.io/docker/image-size/mxdcodes/colota-forwarder/latest?label=Image%20Size) [![Build](https://github.com/dietrichmax/colota-forwarder/actions/workflows/pipeline.yml/badge.svg)](https://github.com/dietrichmax/colota-forwarder/actions/workflows/pipeline.yml)
+
 Receives location updates from the [Colota](https://colota.app) app and forwards them to multiple services at once - Home Assistant, Dawarich, GeoPulse, Traccar, Reitti, or any HTTP endpoint. The forwarder responds to Colota immediately and fans the update out to all targets in the background, converting the format for each service as needed.
 
 > **Warning:** Never expose colota-forwarder to the internet without setting a strong `API_KEY`. Without it, anyone who can reach the forwarder can send arbitrary location data to all your targets. Always run behind a reverse proxy with TLS.
