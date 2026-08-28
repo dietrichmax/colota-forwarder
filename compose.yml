@@ -1,6 +1,6 @@
 services:
   colota-forwarder:
-    image: mxdcodes/colota-forwarder:v0.4.0
+    image: mxdcodes/colota-forwarder:v0.4.1@sha256:a8d86f9b8a2b52b6bc99b7807a44d1e29a677cab9ffc1822f46c0290f6452174
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
